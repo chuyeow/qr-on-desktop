@@ -5,144 +5,82 @@ One command: screenshot a QR, run `qr-on-desktop`, get the decoded result.
 
 ## Why this exists
 
-On macOS there is no built-in desktop workflow to convert a captured QR code into its decoded payload.  
-This tool removes the phone handoff: screenshot or copy the QR in app (Shottr/CleanShot), then run one command to get the URL/text immediately.
+On macOS there is no built-in desktop flow to convert a captured QR into its payload.
+This tool removes the phone handoff: screenshot or copy the QR in Shottr/CleanShot, then run one command to get the URL/text immediately.
 
-## Requirements
+## Usage
 
-- macOS / Linux / Windows
-- Rust toolchain
-
-## Build
+Run the binary with no args (defaults to clipboard):
 
 ```bash
-cargo build
+qr-on-desktop
 ```
 
+Run against one or more image files:
+
 ```bash
-cargo build --release
+qr-on-desktop screenshot.png
+qr-on-desktop a.png b.png
+```
+
+Show help:
+
+```bash
+qr-on-desktop --help
 ```
 
 ## Install
+
+From source (requires Rust):
 
 ```bash
 cargo install --path .
 ```
 
-## Usage
+## Typical macOS workflow
 
-Show help:
-
-```bash
-cargo run -- --help
-qr-on-desktop --help
-```
-
-Decode one or more image files:
+1. In Shottr/CleanShot, capture a screenshot of the QR code to clipboard.
+2. Run:
 
 ```bash
-cargo run -- ./screenshot.png
-cargo run -- ./a.png ./b.png
+qr-on-desktop
 ```
 
-Decode from clipboard:
+3. Read the output URLs/text in your terminal.
 
-```bash
-cargo run -- --clipboard
-```
+## Release behavior
 
-No arguments defaults to clipboard:
-
-```bash
-cargo run --
-```
-
-## Project structure (canonical split)
-
-- `src/main.rs` is the shell: parse args and print results
-- `src/cli.rs` defines CLI arguments via `clap`
-- `src/lib.rs` orchestrates input selection and returns decode outputs
-- `src/io.rs` holds side effects (file load, clipboard read)
-- `src/decoder.rs` is pure QR decode logic
-- `src/fixtures.rs` is shared fixture loading/parsing
-- `tests/fixture_decode.rs` is the integration test suite
-
-## Test workflow
-
-Generate fixture images from shared cases:
-
-```bash
-cargo run --example generate_qr_fixture
-```
-
-Run fixture and legacy smoke tests:
-
-```bash
-cargo test --test fixture_decode
-```
-
-Run all quality gates:
-
-```bash
-cargo fmt --all -- --check
-cargo clippy --all-targets --all-features -- -D warnings
-cargo test
-```
-
-### Enable local git hooks
-
-Enable the repository-local hook path once:
-
-```bash
-git config core.hooksPath .githooks
-```
-
-This runs formatter and linter checks before every commit.
-
-## CI and release workflow
-
-### CI
-
-GitHub Actions runs:
-- formatting check (`rustfmt`)
-- lint (`clippy` with warnings as errors)
-- `cargo check --all-features`
-- `cargo test --doc --all-features`
-- full test matrix on:
-  - `ubuntu-latest`
-  - `macos-latest`
-  - `windows-latest`
-
-### Release
-
-Release is triggered on tags matching:
+Tag to release:
 
 ```text
 vX.Y.Z
 ```
 
-Examples:
+Example:
 
 ```bash
 git tag v0.2.0
 git push origin v0.2.0
 ```
 
-The release workflow builds and uploads:
-- `qr-on-desktop-linux-x86_64.tar.gz`
-- `qr-on-desktop-macos-x86_64.tar.gz`
-- `qr-on-desktop-windows-x86_64.zip`
-- `dist/checksums.txt`
+## For developers
 
-## Fixture files
+### Local quality gates
 
-- Generated fixture set path: `tests/fixtures/*.png`
-- Additional smoke fixture: `tests/fixtures/qr-on-desktop-sample.png`
+```bash
+cargo fmt --all -- --check
+cargo clippy --all-targets --all-features -- -D warnings
+cargo check --all-features
+cargo test --doc --all-features
+cargo test --all-features
+```
 
-`tests/fixtures/cases.tsv` is the source of truth for fixture payloads.
+### Enable local git hooks
 
-## Notes
+Enable repository-local hook path once:
 
-- Supports formats handled by the `image` crate (PNG, JPG/JPEG, BMP, GIF, etc.).
-- Clipboard mode requires screenshot/image data on clipboard.
-- If no payload is found in an image, the app reports no QR detected.
+```bash
+git config core.hooksPath .githooks
+```
+
+This runs formatter and linter checks before every commit.
