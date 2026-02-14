@@ -1,0 +1,99 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - "v*"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+env:
+  CARGO_TERM_COLOR: always
+
+jobs:
+  build:
+    name: Build ${{ matrix.target }}
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - os: ubuntu-latest
+            target: x86_64-unknown-linux-gnu
+            archive: qr-on-desktop-linux-x86_64
+            ext: ""
+            archive_ext: tar.gz
+          - os: macos-latest
+            target: x86_64-apple-darwin
+            archive: qr-on-desktop-macos-x86_64
+            ext: ""
+            archive_ext: tar.gz
+          - os: windows-latest
+            target: x86_64-pc-windows-msvc
+            archive: qr-on-desktop-windows-x86_64
+            ext: ".exe"
+            archive_ext: zip
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@master
+        with:
+          toolchain: stable
+          target: ${{ matrix.target }}
+      - uses: Swatinem/rust-cache@v2
+        with:
+          key: "release-cache-${{ matrix.os }}-${{ matrix.target }}"
+      - name: Build release artifact
+        run: cargo build --release --target ${{ matrix.target }}
+      - name: Package artifact
+        id: package
+        shell: bash
+        run: |
+          BIN_NAME=qr-on-desktop${{ matrix.ext }}
+          mkdir -p dist
+          ARCHIVE_PATH="dist/${{ matrix.archive }}.${{ matrix.archive_ext }}"
+
+          python - <<'PY'
+          import pathlib
+          import tarfile
+          import zipfile
+
+          bin_path = pathlib.Path("target/${{ matrix.target }}/release") / "qr-on-desktop${{ matrix.ext }}"
+          archive_path = pathlib.Path("${{ matrix.archive }}.${{ matrix.archive_ext }}")
+
+          if str(archive_path).endswith(".zip"):
+              with zipfile.ZipFile(pathlib.Path("dist") / archive_path, "w", zipfile.ZIP_DEFLATED) as zf:
+                  zf.write(bin_path, arcname=bin_path.name)
+          else:
+              with tarfile.open(pathlib.Path("dist") / archive_path, "w:gz") as tf:
+                  tf.add(bin_path, arcname=bin_path.name)
+          PY
+
+          echo "path=$ARCHIVE_PATH" >> "$GITHUB_OUTPUT"
+      - uses: actions/upload-artifact@v4
+        with:
+          name: ${{ matrix.archive }}
+          path: ${{ steps.package.outputs.path }}
+
+  publish:
+    name: Publish GitHub release
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/download-artifact@v4
+        with:
+          path: dist
+      - name: Create SHA-256 checksums
+        shell: bash
+        run: |
+          find dist -type f \( -name '*.tar.gz' -o -name '*.zip' \) -print0 \
+            | xargs -0 sha256sum >> dist/checksums.txt
+      - name: Create release
+        uses: softprops/action-gh-release@v2
+        with:
+          generate_release_notes: true
+          files: |
+            dist/**/*
+            dist/checksums.txt

@@ -24,14 +24,16 @@ pub fn decode_inputs(cli: &Cli) -> Vec<DecodeOutput> {
         } else {
             "clipboard (default)".to_string()
         };
-        results.push(decode_from_source(&source, || decode_clipboard()));
+        results.push(decode_from_source(&source, decode_clipboard));
         return results;
     }
 
     for path in &cli.paths {
         let source = path.display().to_string();
         let path_buf = path.clone();
-        results.push(decode_from_source(&source, move || decode_file(path_buf.as_path())));
+        results.push(decode_from_source(&source, move || {
+            decode_file(path_buf.as_path())
+        }));
     }
 
     results

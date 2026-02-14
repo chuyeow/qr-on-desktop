@@ -23,7 +23,9 @@ fn it_decodes_legacy_sample_fixture() {
     let values = decode_file(PathBuf::from("tests/fixtures/qr-on-desktop-sample.png").as_path())
         .expect("failed to decode legacy fixture");
     assert!(
-        values.iter().any(|value| value == "https://example.com/qr-on-desktop"),
+        values
+            .iter()
+            .any(|value| value == "https://example.com/qr-on-desktop"),
         "legacy fixture did not include expected payload: {values:?}"
     );
 }

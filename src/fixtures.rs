@@ -40,6 +40,10 @@ mod tests {
     fn loads_cases_with_payloads() {
         let cases = load_cases().expect("fixture file should be parseable");
         assert!(!cases.is_empty());
-        assert!(cases.iter().any(|case| !case.name.is_empty() && !case.payload.is_empty()));
+        assert!(
+            cases
+                .iter()
+                .any(|case| !case.name.is_empty() && !case.payload.is_empty())
+        );
     }
 }

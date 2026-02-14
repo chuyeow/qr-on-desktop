@@ -1,6 +1,6 @@
 use anyhow::Result;
 use clap::Parser;
-use qr_on_desktop::{decode_inputs, Cli};
+use qr_on_desktop::{Cli, decode_inputs};
 use std::process;
 
 fn main() {

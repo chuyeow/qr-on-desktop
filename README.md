@@ -99,6 +99,41 @@ git config core.hooksPath .githooks
 
 This runs formatter and linter checks before every commit.
 
+## CI and release workflow
+
+### CI
+
+GitHub Actions runs:
+- formatting check (`rustfmt`)
+- lint (`clippy` with warnings as errors)
+- `cargo check --all-features`
+- `cargo test --doc --all-features`
+- full test matrix on:
+  - `ubuntu-latest`
+  - `macos-latest`
+  - `windows-latest`
+
+### Release
+
+Release is triggered on tags matching:
+
+```text
+vX.Y.Z
+```
+
+Examples:
+
+```bash
+git tag v0.2.0
+git push origin v0.2.0
+```
+
+The release workflow builds and uploads:
+- `qr-on-desktop-linux-x86_64.tar.gz`
+- `qr-on-desktop-macos-x86_64.tar.gz`
+- `qr-on-desktop-windows-x86_64.zip`
+- `dist/checksums.txt`
+
 ## Fixture files
 
 - Generated fixture set path: `tests/fixtures/*.png`
