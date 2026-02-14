@@ -1,0 +1,14 @@
+url-google	https://google.com/m
+email-address	mailto:someone@yoursite.com
+email-with-subject	mailto:someone@yoursite.com?subject=Mail%20from%20Our%20Site
+phone-number	tel:+12125551212
+sms-number	sms:+18005551212
+sms-with-message	sms:+18005551212:This%20is%20my%20text%20message.
+facetime-audio	facetime-audio:+18005551212
+map-geo	geo:40.71872,-73.98905,100
+calendar-event	BEGIN:VEVENT\nSUMMARY:Summer+Vacation!\nDTSTART:20180601T070000Z\nDTEND:20180831T070000Z\nEND:VEVENT
+wifi-wpa	WIFI:T:WPA;S:mynetwork;P:mypass;;
+vcard	BEGIN:VCARD\nVERSION:3.0\nN:Owen;Sean;;;\nFN:Sean Owen\nTITLE:Software Engineer\nEMAIL;TYPE=INTERNET;TYPE=WORK;TYPE=PREF:srowen@google.com\nURL;TYPE=Homepage:https://example.com\nEND:VCARD
+me-card	MECARD:N:Owen,Sean;ADR:76 9th Avenue, 4th Floor, New York, NY 10011;TEL:12125551212;EMAIL:srowen@example.com;;
+market-link	market://details?id=org.example.foo
+play-store-link	https://itunes.apple.com/us/app/fortnite/id1261357853?mt=8
