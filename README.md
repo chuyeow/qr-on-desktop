@@ -89,6 +89,16 @@ cargo clippy --all-targets --all-features -- -D warnings
 cargo test
 ```
 
+### Enable local git hooks
+
+Enable the repository-local hook path once:
+
+```bash
+git config core.hooksPath .githooks
+```
+
+This runs formatter and linter checks before every commit.
+
 ## Fixture files
 
 - Generated fixture set path: `tests/fixtures/*.png`
